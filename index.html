@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Glowing Scientific Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #1a1a1a;
+      margin: 0;
+    }
+
+    @keyframes slideFadeIn {
+      0% { transform: translateY(50px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .calculator {
+      background: linear-gradient(145deg, #222, #333);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 10px 10px 20px #111, -10px -10px 20px #444;
+      text-align: center;
+      animation: slideFadeIn 1s ease-out;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+      height: 60px;
+      font-size: 2em;
+      text-align: right;
+      position:relative;
+      Right:10px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      background: #fff;
+      animation: glowInput 2s infinite alternate;
+      box-shadow: inset 3px 3px 6px gray, inset -3px -3px 6px white;
+    }
+
+    @keyframes glowInput {
+      0% { box-shadow: inset 3px 3px 6px gray, inset -3px -3px 6px white; }
+      100% { box-shadow: inset 3px 3px 10px gray, inset -3px -3px 10px white; }
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      height: 60px;
+      font-size: 1em;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
+      color: #7a00ff;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 5px 5px 15px #000, -5px -5px 15px #555;
+    }
+
+    button:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 10px #00f7ff, 0 0 20px #00bfff, inset 0 0 10px #00f7ff;
+      background: linear-gradient(145deg, #2bd5ffcf, #1538ffcf);
+      color: #fff;
+    }
+
+    .clear { background: linear-gradient(145deg, #ff000a, #36001d); color: white; }
+    .equal-btn { 
+      grid-column: span 2; background: linear-gradient(145deg, #0044ff, #001133); color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <input type="text" id="display" readonly />
+    <div class="buttons">
+      <button class="clear" onclick="clearDisplay()">C</button>
+      <button onclick="factorial()">x!</button>
+      <button onclick="appendToDisplay('**2')">x²</button>
+      <button onclick="appendToDisplay('**')">xʸ</button>
+      <button onclick="appendToDisplay('Math.sqrt(')">√</button>
+      <button onclick="appendToDisplay('1/')">1/x</button>
+
+      <button onclick="appendToDisplay('7')">7</button>
+      <button onclick="appendToDisplay('8')">8</button>
+      <button onclick="appendToDisplay('9')">9</button>
+      <button onclick="appendToDisplay('/')">÷</button>
+      <button onclick="appendToDisplay('Math.sin(')">sin</button>
+      <button onclick="appendToDisplay('Math.sinh(')">sinh</button>
+
+      <button onclick="appendToDisplay('4')">4</button>
+      <button onclick="appendToDisplay('5')">5</button>
+      <button onclick="appendToDisplay('6')">6</button>
+      <button onclick="appendToDisplay('*')">×</button>
+      <button onclick="appendToDisplay('Math.cos(')">cos</button>
+      <button onclick="appendToDisplay('Math.cosh(')">cosh</button>
+
+      <button onclick="appendToDisplay('1')">1</button>
+      <button onclick="appendToDisplay('2')">2</button>
+      <button onclick="appendToDisplay('3')">3</button>
+      <button onclick="appendToDisplay('+')">+</button>
+      <button onclick="appendToDisplay('Math.tan(')">tan</button>
+      <button onclick="appendToDisplay('Math.tanh(')">tanh</button>
+
+      <button onclick="appendToDisplay('.')">.</button>
+      <button onclick="appendToDisplay('0')">0</button>
+      <button onclick="appendToDisplay('Math.abs(')">abs</button>
+      <button onclick="appendToDisplay('-')">−</button>
+      <button onclick="appendToDisplay('Math.log10(')">log</button>
+      <button onclick="appendToDisplay('Math.log2(')">log₂</button>
+
+      <button onclick="appendToDisplay('(')">(</button>
+      <button onclick="appendToDisplay(')')">)</button>
+      <button onclick="appendToDisplay('{')">{</button>
+      <button onclick="appendToDisplay('}')">}</button>
+      <button onclick="appendToDisplay('[')">[</button>
+      <button onclick="appendToDisplay(']')">]</button>
+
+      <button onclick="appendToDisplay('Math.E')">e</button>
+      <button onclick="appendToDisplay('Math.PI')">π</button>
+      <button onclick="appendToDisplay('Math.log(')">ln</button>
+      <button onclick="appendToDisplay('Math.exp(')">EXP</button>
+      <button onclick="toggleDegRad()">DEG</button>
+      <button onclick="appendAns()">ANS</button>
+
+      <button class="button" onclick="backspace()">⌫</button>
+      <button class="equal-btn" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    let isDegree = true;
+    let lastAnswer = "";
+
+    function appendToDisplay(value) {
+      const display = document.getElementById("display");
+      if (display.value.includes(",")) {
+        display.value = display.value.replace(/,/g, "");
+      }
+      display.value += value;
+    }
+
+    function clearDisplay() {
+      document.getElementById("display").value = "";
+    }
+
+    function backspace() {
+      const display = document.getElementById("display");
+      display.value = display.value.slice(0, -1);
+    }
+
+    function appendAns() {
+      document.getElementById("display").value += lastAnswer;
+    }
+
+    function toggleDegRad() {
+      isDegree = !isDegree;
+      const btn = document.querySelector('button[onclick="toggleDegRad()"]');
+      btn.textContent = isDegree ? "DEG" : "RAD";
+    }
+
+    function factorial() {
+      const display = document.getElementById("display");
+      try {
+        const val = eval(display.value.replace(/,/g, ""));
+        if (val < 0 || !Number.isInteger(val)) throw "Invalid";
+        let fact = 1;
+        for (let i = 1; i <= val; i++) fact *= i;
+        display.value = fact.toLocaleString();
+        lastAnswer = fact;
+      } catch {
+        display.value = "Error";
+      }
+    }
+
+    function calculate() {
+      const display = document.getElementById("display");
+      let expr = display.value.replace(/,/g, "");
+      try {
+        if (isDegree) {
+          expr = expr.replace(/Math\.sin\(([^)]+)\)/g, 'Math.sin($1 * Math.PI / 180)');
+          expr = expr.replace(/Math\.cos\(([^)]+)\)/g, 'Math.cos($1 * Math.PI / 180)');
+          expr = expr.replace(/Math\.tan\(([^)]+)\)/g, 'Math.tan($1 * Math.PI / 180)');
+        }
+        const result = eval(expr);
+        lastAnswer = result;
+        display.value = Number(result).toLocaleString();
+      } catch {
+        display.value = "Error";
+      }
+    }
+  </script>
+</body>
+</html>
